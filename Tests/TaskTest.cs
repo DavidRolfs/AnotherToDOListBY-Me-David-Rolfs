@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 
 namespace ToDo
 {
+  [Collection("ToDoLists")]
   public class ToDoTest : IDisposable
   {
     public ToDoTest()
@@ -82,8 +83,6 @@ namespace ToDo
     public void Dispose()
     {
       Task.DeleteAll();
-      // Console.WriteLine(Task.GetAll().Count);
-      // Console.WriteLine(Category.GetAll().Count);
     }
   }
 }

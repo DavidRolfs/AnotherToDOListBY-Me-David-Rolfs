@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 
 namespace ToDo
 {
+  [Collection("ToDoLists")]
   public class CategoryTest : IDisposable
   {
     public CategoryTest()
@@ -135,12 +136,7 @@ namespace ToDo
 
     public void Dispose()
     {
-      Console.WriteLine("categories");
       Category.DeleteAll();
-      Task.DeleteAll();
-      // Console.WriteLine(Task.GetAll().Count);
-      // Console.WriteLine(Category.GetAll().Count);
-
     }
   }
 }
