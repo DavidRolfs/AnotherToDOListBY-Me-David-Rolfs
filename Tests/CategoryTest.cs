@@ -4,9 +4,9 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace ToDo
+namespace ToDoList
 {
-  [Collection("ToDoLists")]
+  [Collection("ToDoList")]
   public class CategoryTest : IDisposable
   {
     public CategoryTest()
@@ -23,6 +23,7 @@ namespace ToDo
       //Assert
       Assert.Equal(0, result);
     }
+
     [Fact]
     public void Test_Equal_ReturnsTrueForSameName()
     {
@@ -35,10 +36,10 @@ namespace ToDo
     }
 
     [Fact]
-    public void Test_Save_SavesToDatabase()
+    public void Test_Save_SavesCategoryToDatabase()
     {
-      //Arrange, Act
-      Category testCategory = new Category("Garden");
+      //Arrange
+      Category testCategory = new Category("Household chores");
       testCategory.Save();
 
       //Act
@@ -49,67 +50,58 @@ namespace ToDo
       Assert.Equal(testList, result);
     }
 
-    // [Fact]
-    // public void Test_Save_AssignsIdToCategoryObject()
-    // {
-    //   Category testCategory = new Category("Shopping");
-    //   testCategory.Save();
-    //
-    //   Category savedCategory = Category.GetAll()[0];
-    //
-    //   int result = savedCategory.GetId();
-    //   int testId = testCategory.GetId();
-    //
-    //   Assert.Equal(testId, result);
-    // }
+    [Fact]
+    public void Test_Save_AssignsIdToCategoryObject()
+    {
+      //Arrange
+      Category testCategory = new Category("Household chores");
+      testCategory.Save();
+
+      //Act
+      Category savedCategory = Category.GetAll()[0];
+
+
+      int result = savedCategory.GetId();
+      int testId = testCategory.GetId();
+
+      //Assert
+      Assert.Equal(testId, result);
+    }
 
     [Fact]
     public void Test_Find_FindsCategoryInDatabase()
     {
-      Category testCategory = new Category("Laundry");
+      //Arrange
+      Category testCategory = new Category("Household chores");
       testCategory.Save();
 
+      //Act
       Category foundCategory = Category.Find(testCategory.GetId());
 
+      //Assert
       Assert.Equal(testCategory, foundCategory);
     }
-
+    // [Fact]
+    // public void Test_GetTasks_RetrievesAllTasksWithCategory()
+    // {
+    //   Category testCategory = new Category("Household chores");
+    //   testCategory.Save();
+    //
+    //   Task firstTask = new Task("Mow the lawn");
+    //   firstTask.Save();
+    //   Task secondTask = new Task("Do the dishes");
+    //   secondTask.Save();
+    //
+    //
+    //   List<Task> testTaskList = new List<Task> {firstTask, secondTask};
+    //   List<Task> resultTaskList = testCategory.GetTasks();
+    //
+    //   Assert.Equal(testTaskList, resultTaskList);
+    // }
     [Fact]
-    public void Test_GetTasks_RetrievesAllTasksWithCategory()
+    public void Delete_DeletesCategoryFromDatabase_CategoryList()
     {
-      Category testCategory = new Category("Cleaning");
-      testCategory.Save();
-
-      Task firstTask = new Task("Take out the trash", testCategory.GetId(), "1/2/17");
-      firstTask.Save();
-      Task secondTask = new Task("Mop the floor", testCategory.GetId(), "1/2/17");
-      secondTask.Save();
-
-      List<Task> testTaskList = new List<Task>{firstTask, secondTask};
-      List<Task> resultTaskList = testCategory.GetTasks();
-
-      Assert.Equal(testTaskList, resultTaskList);
-
-    }
-
-    [Fact]
-    public void Test_Update_UpdatesCategoryInDatabase()
-    {
-      string name = "Home stuff";
-      Category testCategory = new Category(name);
-      testCategory.Save();
-      string newName = "Work stuff";
-
-      testCategory.Update(newName);
-
-      string result = testCategory.GetName();
-
-      Assert.Equal(newName, result);
-    }
-
-    [Fact]
-    public void Test_Delete_DeletesCategoryFromDatabase()
-    {
+      //Arrange
       string name1 = "Home stuff";
       Category testCategory1 = new Category(name1);
       testCategory1.Save();
@@ -118,24 +110,85 @@ namespace ToDo
       Category testCategory2 = new Category(name2);
       testCategory2.Save();
 
-      Task testTask1 = new Task("mow the lawn", testCategory1.GetId(), "1/2/17");
-      testTask1.Save();
-      Task testTask2 = new Task("wash the dishes", testCategory2.GetId(), "1/2/17");
-      testTask2.Save();
-
+      //Act
       testCategory1.Delete();
       List<Category> resultCategories = Category.GetAll();
       List<Category> testCategoryList = new List<Category> {testCategory2};
 
-      List<Task> resultTasks = Task.GetAll();
-      List<Task> testTaskList = new List<Task> {testTask2};
-
+      //Assert
       Assert.Equal(testCategoryList, resultCategories);
-      Assert.Equal(testTaskList, resultTasks);
+    }
+
+    [Fact]
+    public void Test_AddTask_AddsTaskToCategory()
+    {
+      //Arrange
+      Category testCategory = new Category("Household chores");
+      testCategory.Save();
+
+      Task testTask = new Task("Mow the lawn");
+      testTask.Save();
+
+      Task testTask2 = new Task("Water the garden");
+      testTask2.Save();
+
+      //Act
+      testCategory.AddTask(testTask);
+      testCategory.AddTask(testTask2);
+
+      List<Task> result = testCategory.GetTasks();
+      List<Task> testList = new List<Task>{testTask, testTask2};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
+    [Fact]
+    public void GetTasks_ReturnsAllCategoryTasks_TaskList()
+    {
+      //Arrange
+      Category testCategory = new Category("Household chores");
+      testCategory.Save();
+
+      Task testTask1 = new Task("Mow the lawn");
+      testTask1.Save();
+
+      Task testTask2 = new Task("Buy plane ticket");
+      testTask2.Save();
+
+      //Act
+      testCategory.AddTask(testTask1);
+      List<Task> savedTasks = testCategory.GetTasks();
+      List<Task> testList = new List<Task> {testTask1};
+
+      //Assert
+      Assert.Equal(testList, savedTasks);
+    }
+    [Fact]
+    public void Delete_DeletesCategoryAssociationsFromDatabase_CategoryList()
+    {
+      //Arrange
+      Task testTask = new Task("Mow the lawn");
+      testTask.Save();
+
+      string testName = "Home stuff";
+      Category testCategory = new Category(testName);
+      testCategory.Save();
+
+      //Act
+      testCategory.AddTask(testTask);
+      testCategory.Delete();
+
+      List<Category> resultTaskCategories = testTask.GetCategories();
+      List<Category> testTaskCategories = new List<Category> {};
+
+      //Assert
+      Assert.Equal(testTaskCategories, resultTaskCategories);
     }
 
     public void Dispose()
     {
+      Task.DeleteAll();
       Category.DeleteAll();
     }
   }

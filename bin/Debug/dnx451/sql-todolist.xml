@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>ToDoSQL-CSharp</name>
+        <name>sql-todolist</name>
     </assembly>
     <members>
     </members>
